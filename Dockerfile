@@ -6,6 +6,9 @@ ENV GOPATH /srv/go
 ENV APP_PATH $GOPATH/src/github.com/msecret/invcmp-b
 ENV PATH /srv/go/bin:$PATH
 
+RUN apt-get update && \
+    apt-get -y -q install bzr
+
 ADD . $APP_PATH
 ## WORKDIR doesn't not expand env vars
 ## see https://github.com/dotcloud/docker/issues/2637 

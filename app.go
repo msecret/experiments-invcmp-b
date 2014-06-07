@@ -5,11 +5,17 @@ import (
 	"os"
 
 	"github.com/go-martini/martini"
+	"labix.org/v2/mgo"
 )
 
 type StatusMessage struct {
 	DbConf  string
 	AppConf string
+}
+
+type User struct {
+	Name  string
+	Email string
 }
 
 func main() {
@@ -21,6 +27,19 @@ func main() {
 		"dbname=%s "+
 			"host=%s "+
 			"port=%s ", DB_NAME, DB_HOST, DB_PORT)
+
+	session, err := mgo.Dial(fmt.Sprintf("%s:%s", DB_HOST, DB_PORT))
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	c := session.DB(DB_NAME).C("user")
+	err = c.Insert(&User{"marco", "marco@minted.com"})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("User created")
 
 	m := martini.Classic()
 	m.Get("/st", func() string {
