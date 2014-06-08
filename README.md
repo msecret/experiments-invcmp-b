@@ -10,3 +10,4 @@ NAME="invcmp-main"
 --link invcmp-db:db \ 
 -v /home/msecret/Development/go/src/github.com/msecret/invcmp-b:/srv/go/src/github.com/msecret/invcmp-b/:rw \
 --name invcmp-app msecret/invcmp-b
+

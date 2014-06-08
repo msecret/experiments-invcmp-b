@@ -1,3 +1,12 @@
+/*
+Copyright (c) 2013
+All Rights Reserved
+Licensed MIT
+
+https://github.com/msecret/experiments-invcmp-b
+stockarator v0.0.1
+*/
+
 package main
 
 import (
@@ -6,16 +15,13 @@ import (
 
 	"github.com/go-martini/martini"
 	"labix.org/v2/mgo"
+
+	"github.com/msecret/invcmp-b/model"
 )
 
 type StatusMessage struct {
 	DbConf  string
 	AppConf string
-}
-
-type User struct {
-	Name  string
-	Email string
 }
 
 func main() {
@@ -24,25 +30,12 @@ func main() {
 	DB_NAME := "main"
 
 	db_conn_params := fmt.Sprintf(
-		"dbname=%s "+
-			"host=%s "+
-			"port=%s ", DB_NAME, DB_HOST, DB_PORT)
-
-	session, err := mgo.Dial(fmt.Sprintf("%s:%s", DB_HOST, DB_PORT))
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-
-	c := session.DB(DB_NAME).C("user")
-	err = c.Insert(&User{"marco", "marco@minted.com"})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("User created")
+		"%s:%s", DB_HOST, DB_PORT)
 
 	m := martini.Classic()
-	m.Get("/st", func() string {
+	m.Use(model.DB(db_conn_params, DB_NAME))
+
+	m.Get("/st", func(db *mgo.Database) string {
 		return "st: " + db_conn_params
 	})
 
