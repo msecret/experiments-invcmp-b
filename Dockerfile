@@ -14,7 +14,7 @@ ADD . $APP_PATH
 ## see https://github.com/dotcloud/docker/issues/2637 
 WORKDIR /srv/go/src/github.com/msecret/invcmp-b
 
-VOLUME ["/srv/go/src/github.com/msecret/invcmp-b"]
+VOLUME ["/srv/go/src/github.com/msecret/invcmp-b", "/srv/go/src/github.com/msecret/invcmp-b/public"]
 
 RUN go get github.com/codegangsta/gin
 RUN go get
