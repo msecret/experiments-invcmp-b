@@ -14,6 +14,7 @@ import (
 	"os"
 
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/strip"
 
 	"github.com/msecret/invcmp-b/model"
 	"github.com/msecret/invcmp-b/route"
@@ -32,15 +33,19 @@ func main() {
 	}
 	db_conn_params := fmt.Sprintf(
 		"%s:%s", DB_HOST, DB_PORT)
+	apiPrefix := fmt.Sprintf("/api/%s", VERSION)
 
 	m := martini.Classic()
 	m.Use(model.DB(db_conn_params, DB_NAME))
 
-	m, err := route.InitHomeRoutes(m, config)
+	api := martini.NewRouter()
+	api, err := route.InitHomeRoutes(api, config)
 	if err != nil {
 		// TODO handle error
 		panic(err)
 	}
 
+	// Prefix all api requests with api/{version id}/
+	m.Get(apiPrefix+"/**", strip.Prefix(apiPrefix), api.Handle)
 	m.Run()
 }
