@@ -7,7 +7,8 @@ import (
 
 func InitHomeRoutes(api martini.Router, config map[string]string) (
 	martini.Router, error) {
-	api.Get("/st", func(db *mgo.Database) string {
+
+	api.Get("/st", func(sesh *mgo.Database) string {
 		return "st: " + config["DbName"]
 	})
 
