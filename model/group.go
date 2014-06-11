@@ -3,17 +3,14 @@ package model
 import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
-	"time"
 )
 
 type (
 	Groups []Group
 	Group  struct {
+		Base
 		Id   bson.ObjectId `json:"id" bson:"_id"`
 		Name string        `json:"name" bson"name"`
-		// Make this defined on every model somehow
-		CreatedAt time.Time `json:"created_at" bson:"create_at"`
-		UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
 	}
 	GroupRepo struct {
 		Collection *mgo.Collection
@@ -30,9 +27,11 @@ func (r *GroupRepo) GetOne(name string) (Group, error) {
 }
 
 func (r *GroupRepo) Create(toCreate Group) (Group, error) {
-	toCreate.CreatedAt = time.Now()
-	toCreate.UpdatedAt = time.Now()
-	r.Collection.UpsertId(toCreate.Id, toCreate)
+	toCreate.Create()
+	err := r.Collection.Insert(toCreate)
+	if err != nil {
+		panic(err) // TODO handle_error
+	}
 
 	return toCreate, nil
 }
