@@ -1,0 +1,30 @@
+{
+	"ImportPath": "github.com/msecret/invcmp-b",
+	"GoVersion": "go1.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/inject",
+			"Comment": "v1.0-rc1",
+			"Rev": "37d7f8432a3e684eef9b2edece76bdfa6ac85b39"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/martini",
+			"Comment": "v1.0-3-gadaa8f7",
+			"Rev": "adaa8f7fe1224a8f0fac72d23ee80c149b21f0fb"
+		},
+		{
+			"ImportPath": "github.com/go-martini/martini",
+			"Comment": "v1.0-3-gadaa8f7",
+			"Rev": "adaa8f7fe1224a8f0fac72d23ee80c149b21f0fb"
+		},
+		{
+			"ImportPath": "github.com/martini-contrib/strip",
+			"Rev": "6853e03e2717b0998551d401a5befd3be8a56359"
+		},
+		{
+			"ImportPath": "labix.org/v2/mgo",
+			"Comment": "275",
+			"Rev": "gustavo@niemeyer.net-20140501184651-975yyw9ipld92pji"
+		}
+	]
+}

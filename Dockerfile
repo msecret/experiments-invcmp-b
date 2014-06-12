@@ -16,7 +16,8 @@ WORKDIR /srv/go/src/github.com/msecret/invcmp-b
 
 VOLUME ["/srv/go/src/github.com/msecret/invcmp-b", "/srv/go/src/github.com/msecret/invcmp-b/public"]
 
-RUN go get github.com/codegangsta/gin
+RUN go get github.com/codegangsta/gin && \
+    go get github.com/kr/godep
 RUN go get
 RUN go build
 
