@@ -7,6 +7,9 @@ import (
 	"github.com/msecret/invcmp-b/model"
 )
 
+// InitGroupRoutes Initializes all routes for the group schema.
+// Takes a router to add routes to and config  for the api.
+// Returns the same router with new routes added.
 func InitGroupRoutes(api martini.Router, config map[string]string) (
 	martini.Router, error) {
 
