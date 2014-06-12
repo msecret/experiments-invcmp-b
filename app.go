@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 
+	log "github.com/cihub/seelog"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/strip"
 
@@ -47,5 +48,6 @@ func main() {
 
 	// Prefix all api requests with api/{version id}/
 	m.Get(apiPrefix+"/**", strip.Prefix(apiPrefix), api.Handle)
+	log.Info("init complete, listening...")
 	m.Run()
 }
