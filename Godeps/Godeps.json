@@ -18,6 +18,11 @@
 			"Rev": "adaa8f7fe1224a8f0fac72d23ee80c149b21f0fb"
 		},
 		{
+			"ImportPath": "github.com/codegangsta/martini-contrib/render",
+			"Comment": "v0.1-159-g8ce6181",
+			"Rev": "8ce6181c2609699e4c7cd30994b76a850a9cdadc"
+		},
+		{
 			"ImportPath": "github.com/go-martini/martini",
 			"Comment": "v1.0-3-gadaa8f7",
 			"Rev": "adaa8f7fe1224a8f0fac72d23ee80c149b21f0fb"

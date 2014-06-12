@@ -1,11 +1,14 @@
 package route
 
 import (
+	"github.com/codegangsta/martini-contrib/render"
 	"github.com/go-martini/martini"
 	"labix.org/v2/mgo"
 
 	"github.com/msecret/invcmp-b/model"
 )
+
+var repo model.GroupRepo
 
 // InitGroupRoutes Initializes all routes for the group schema.
 // Takes a router to add routes to and config  for the api.
@@ -13,18 +16,29 @@ import (
 func InitGroupRoutes(api martini.Router, config map[string]string) (
 	martini.Router, error) {
 
-	repo := model.GroupRepo{}
+	repo = model.GroupRepo{}
 
-	api.Get("/group/:name",
-		func(params martini.Params, sesh *mgo.Database) string {
-			repo.Collection = sesh.C("group")
-			group, err := repo.GetOne(params["name"])
-			if err != nil {
-				panic(err) // TODO handle err
-			}
-
-			return group.Name
-		})
+	api.Get("/group/:name", GetOneByName)
 
 	return api, nil
+}
+
+// GetOneByName takes martini params and a database session and returns one
+// Group model. Should search for the one by name which should be present in
+// params.
+func GetOneByName(params martini.Params,
+	sesh *mgo.Database, r render.Render) {
+	repo.Collection = sesh.C("groups")
+	group, err := repo.GetOne(params["name"])
+	if err != nil {
+		if err.Error() == "not found" {
+			r.JSON(404, map[string]interface{}{"status": "Failure",
+				"error_message": err.Error()})
+			return
+		}
+		r.JSON(500, map[string]interface{}{"status": "Failure",
+			"error_message": err.Error()})
+	}
+
+	r.JSON(200, map[string]interface{}{"status": "Success", "data": group})
 }

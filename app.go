@@ -14,6 +14,7 @@ import (
 	"os"
 
 	log "github.com/cihub/seelog"
+	"github.com/codegangsta/martini-contrib/render"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/strip"
 
@@ -38,9 +39,11 @@ func main() {
 
 	m := martini.Classic()
 	m.Use(model.DB(db_conn_params, DB_NAME))
+	m.Use(render.Renderer())
 
 	api := martini.NewRouter()
 	api, err := route.InitHomeRoutes(api, config)
+	api, err = route.InitGroupRoutes(api, config)
 	if err != nil {
 		// TODO handle error
 		panic(err)
