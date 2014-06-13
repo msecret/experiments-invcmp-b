@@ -2,6 +2,7 @@ stockarator-api
 ===============
 
 REST APi for the stockarator
+0.0.2
 
 - sudo docker run  -p 27017 --name invcmp-db -d mongo -e\
 NAME="invcmp-main"

@@ -4,7 +4,7 @@ All Rights Reserved
 Licensed MIT
 
 https://github.com/msecret/experiments-invcmp-b
-stockarator v0.0.1
+stockarator v0.0.2
 */
 
 package main
