@@ -13,10 +13,10 @@ var repo model.GroupRepo
 // InitGroupRoutes Initializes all routes for the group schema.
 // Takes a router to add routes to and config  for the api.
 // Returns the same router with new routes added.
-func InitGroupRoutes(api martini.Router, config map[string]string) (
+func InitGroupRoutes(api martini.Router, db *mgo.Database) (
 	martini.Router, error) {
 
-	repo = model.GroupRepo{}
+	repo = model.NewGroupRepo(db)
 
 	api.Get("/group/:name", GetOneByName)
 

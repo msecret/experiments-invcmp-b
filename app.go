@@ -41,9 +41,14 @@ func main() {
 	m.Use(model.DB(db_conn_params, DB_NAME))
 	m.Use(render.Renderer())
 
+	// Init session to db to set up repos
+	sesh, _ := model.CreateSesh(db_conn_params, DB_NAME)
+	db := sesh.DB(DB_NAME)
+	defer sesh.Close()
+
 	api := martini.NewRouter()
 	api, err := route.InitHomeRoutes(api, config)
-	api, err = route.InitGroupRoutes(api, config)
+	api, err = route.InitGroupRoutes(api, db)
 	if err != nil {
 		// TODO handle error
 		panic(err)

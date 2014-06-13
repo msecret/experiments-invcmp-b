@@ -25,6 +25,25 @@ type (
 	}
 )
 
+// NewGroupRepo creates a new group repository, sets the correct
+// database collection and ensures any indexes on the collection. Returns
+// the new repository.
+func NewGroupRepo(sesh *mgo.Database) GroupRepo {
+	idx := mgo.Index{
+		Key:        []string{"name"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+	r := GroupRepo{
+		Collection: sesh.C("groups"),
+	}
+	r.Collection.EnsureIndex(idx)
+
+	return r
+}
+
 // GetOne returns one group from the database that matches based on the name
 // string passed in.
 // Returns the group or an error if one occurred.

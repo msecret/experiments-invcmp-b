@@ -27,6 +27,25 @@ type (
 	}
 )
 
+// NewInvestmentRepo acreates a new investment repository, sets the correct
+// database collection and ensures any indexes on the collection. Returns
+// the new repository.
+func NewInvestmentRepo(sesh *mgo.Database) InvestmentRepo {
+	idx := mgo.Index{
+		Key:        []string{"symbol"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+	r := InvestmentRepo{
+		Collection: sesh.C("investments"),
+	}
+	r.Collection.EnsureIndex(idx)
+
+	return r
+}
+
 // CreateOne will attempt to update the base time fields and then insert one
 // Investment into the database by taking a Investment to be created. Returns
 // the created investment.
