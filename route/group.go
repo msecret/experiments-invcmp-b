@@ -32,13 +32,13 @@ func GetOneByName(params martini.Params,
 	group, err := repo.GetOne(params["name"])
 	if err != nil {
 		if err.Error() == "not found" {
-			r.JSON(404, map[string]interface{}{"status": "Failure",
+			r.JSON(404, map[string]interface{}{"status": "failure",
 				"error_message": err.Error()})
 			return
 		}
-		r.JSON(500, map[string]interface{}{"status": "Failure",
+		r.JSON(500, map[string]interface{}{"status": "failure",
 			"error_message": err.Error()})
 	}
 
-	r.JSON(200, map[string]interface{}{"status": "Success", "data": group})
+	r.JSON(200, map[string]interface{}{"status": "success", "data": group})
 }

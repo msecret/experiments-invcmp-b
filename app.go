@@ -29,10 +29,12 @@ func main() {
 	VERSION := os.Getenv("API_VERSION")
 	VERSION = "v0"
 
-	config := map[string]string{
-		"DbName":  DB_NAME,
-		"Version": VERSION,
-	}
+	/*
+		config := map[string]string{
+			"DbName":  DB_NAME,
+			"Version": VERSION,
+		}
+	*/
 	db_conn_params := fmt.Sprintf(
 		"%s:%s", DB_HOST, DB_PORT)
 	apiPrefix := fmt.Sprintf("/api/%s", VERSION)
@@ -47,15 +49,14 @@ func main() {
 	defer sesh.Close()
 
 	api := martini.NewRouter()
-	api, err := route.InitHomeRoutes(api, config)
-	api, err = route.InitGroupRoutes(api, db)
+	api, err := route.InitInvestmentRoutes(api, db)
 	if err != nil {
-		// TODO handle error
+		// TODO handle_error
 		panic(err)
 	}
 
 	// Prefix all api requests with api/{version id}/
-	m.Get(apiPrefix+"/**", strip.Prefix(apiPrefix), api.Handle)
+	m.Any(apiPrefix+"/**", strip.Prefix(apiPrefix), api.Handle)
 	log.Info("init complete, listening...")
 	m.Run()
 }

@@ -15,15 +15,20 @@ type (
 	//   /public/schema/investment.json
 	Investment struct {
 		Base
-		Id     bson.ObjectId `json:"id" bson:"_id"`
-		Symbol string        `json:"symbol" bson:"symbol"`
-		Group  Group         `json:"group" bson:"group"`
-		Fields bson.M        `json:"fields" bson:"fields"`
+		Symbol string `json:"symbol" bson:"symbol" binding:"required"`
+		Group  *Group `json:"group,omitempty" bson:",omitempty"`
+		Fields bson.M `json:"fields"`
 	}
 	// InvestmentRepo is responsible for all actions on the database related to the
 	// Investment model
 	InvestmentRepo struct {
 		Collection *mgo.Collection
+	}
+
+	// InvestmentRepository is an interface for something that can run basic crud
+	// operations on an Investment model.
+	InvestmentRepositor interface {
+		CreateOne(toCreate Investment) (Investment, error)
 	}
 )
 
@@ -51,6 +56,14 @@ func NewInvestmentRepo(sesh *mgo.Database) InvestmentRepo {
 // the created investment.
 func (r *InvestmentRepo) CreateOne(toCreate Investment) (Investment, error) {
 	toCreate.Create()
+	if toCreate.Group != nil {
+		toCreate.Group.Create()
+	}
+
+	if toCreate.Fields == nil {
+		toCreate.Fields = make(map[string]interface{})
+	}
+
 	err := r.Collection.Insert(toCreate)
 	if err != nil {
 		return Investment{}, err

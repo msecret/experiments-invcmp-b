@@ -15,8 +15,7 @@ type (
 	// }
 	Group struct {
 		Base
-		Id   bson.ObjectId `json:"id" bson:"_id"`
-		Name string        `json:"name" bson"name"`
+		Name string `json:"name" bson"name"`
 	}
 	// GroupRepo is responsible for all actions on the database related to the
 	// Group model.
