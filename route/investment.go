@@ -1,6 +1,10 @@
 package route
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
+
 	log "github.com/cihub/seelog"
 	"github.com/codegangsta/martini-contrib/render"
 	"github.com/go-martini/martini"
@@ -20,9 +24,11 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 
 	investmentRepo = model.NewInvestmentRepo(db)
 
-	api.Get("/investments/:id", GetOne)
+	api.Get("/investment/:id", GetOne)
+	//api.Get("/investment(?P<symbol>symbol=[a-zA-Z]+)", GetOneBySymbol)
+	api.Get("/investment", GetOneBySymbol)
 	api.Post("/investments", binding.Bind(model.Investment{}), CreateOne)
-	api.Delete("/investments/:id", DeleteOne)
+	api.Delete("/investment/:id", DeleteOne)
 
 	return api, nil
 }
@@ -30,11 +36,39 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 // GetOne will attempt to find a resource by id in the database and return
 // it if exists, 404 error if it doesn't.
 //
-// curl -i -H "Accept: application/json" http://localhost:49182/api/v0/investments/{id}
+// curl -i -H "Accept: application/json" http://localhost:49182/api/v0/investment/{id}
 func GetOne(params martini.Params, sesh *mgo.Database, r render.Render) {
 	investmentRepo.Collection = sesh.C("investments")
-	log.Info("In GetOne")
 	investment, err := investmentRepo.GetOne(params["id"])
+	if err != nil {
+		if err.Error() == model.ERR_NOT_FOUND {
+			r.JSON(ResponseNotFound())
+		} else {
+			log.Error(err.Error())
+			r.JSON(ResponseInternalServerError(err))
+		}
+		return
+	}
+
+	r.JSON(ResponseSuccess(investment, "investment"))
+}
+
+// GetOneBySymbol will attempt to find a resource by symbol name in the database
+// and return it if exists, 404 error if it doesn't.
+//
+// curl -i -H "Accept: application/json"
+//   http://localhost:49182/api/v0/investment?symbol={symbol}
+func GetOneBySymbol(req *http.Request, sesh *mgo.Database, r render.Render) {
+	query := req.URL.Query()
+	symbolParam := query["symbol"]
+	if len(symbolParam) < 1 {
+		r.JSON(ResponseBadRequest(errors.New("Request missing required name field")))
+		return
+	}
+
+	symbol := symbolParam[0]
+	investmentRepo.Collection = sesh.C("investments")
+	investment, err := investmentRepo.GetOneBySymbol(symbol)
 	if err != nil {
 		if err.Error() == model.ERR_NOT_FOUND {
 			r.JSON(ResponseNotFound())

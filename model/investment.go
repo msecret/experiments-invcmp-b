@@ -74,6 +74,24 @@ func (r *InvestmentRepo) GetOne(id string) (Investment, error) {
 	return toReturnInvestment, nil
 }
 
+// GetOneBySymbol will search for an investment by its symbol and will return
+// it if it exists. If the "not found" error occurs, will return a NOT_FOUND
+// error, or just the error otherwise.
+// Because symbol is unique, this is not part of a list of investments but just
+// a single investment.
+func (r *InvestmentRepo) GetOneBySymbol(symbol string) (Investment, error) {
+	toReturnInvestment := Investment{}
+	err := r.Collection.Find(bson.M{"symbol": symbol}).One(&toReturnInvestment)
+	if err != nil {
+		if err.Error() == mgo.ErrNotFound.Error() {
+			return toReturnInvestment, errors.New(ERR_NOT_FOUND)
+		} else {
+			return toReturnInvestment, err
+		}
+	}
+	return toReturnInvestment, nil
+}
+
 // CreateOne will attempt to update the base time fields and then insert one
 // Investment into the database by taking a Investment to be created. Returns
 // the created investment.

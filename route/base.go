@@ -6,6 +6,12 @@ func ResponseNotFound() (int, map[string]interface{}) {
 	return http.StatusNotFound, map[string]interface{}{"status": "failure"}
 }
 
+func ResponseBadRequest(err error) (int, map[string]interface{}) {
+	return http.StatusBadRequest, map[string]interface{}{
+		"status":        "failure",
+		"error_message": err.Error()}
+}
+
 func ResponseInternalServerError(err error) (int, map[string]interface{}) {
 	return http.StatusInternalServerError, map[string]interface{}{
 		"status":        "failure",
