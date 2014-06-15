@@ -19,3 +19,13 @@ func ResponseSuccess(resource interface{}, resourceName string) (int, map[string
 			resourceName: resource},
 	}
 }
+
+// ResponseSuccessNoData will return a 200 success response for when no data has
+// to be sent back to the client. The struct will still include a data attribute
+// for consistency.
+func ResponseSuccessNoData() (int, map[string]interface{}) {
+	return http.StatusAccepted, map[string]interface{}{
+		"status": "success",
+		"data":   map[string]interface{}{},
+	}
+}

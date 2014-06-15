@@ -64,17 +64,13 @@ func (suite *RouteBaseTests) TestResponseSuccessWithData() {
 
 }
 func (suite *RouteBaseTests) TestResponseSuccessWithoutData() {
-	testData := map[string]interface{}{}
-	testResourceName := "resource"
 	expectedCode := http.StatusAccepted
 	expectedData := map[string]interface{}{
 		"status": "success",
-		"data": map[string]interface{}{
-			testResourceName: testData,
-		},
+		"data":   map[string]interface{}{},
 	}
 
-	actualCode, actualData := ResponseSuccess(testData, testResourceName)
+	actualCode, actualData := ResponseSuccessNoData()
 
 	assert.Equal(suite.T(), actualCode, expectedCode, "Status code should be 200")
 	assert.Equal(suite.T(), actualData, expectedData, "Data will have a success "+

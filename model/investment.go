@@ -1,9 +1,13 @@
 package model
 
 import (
+	"errors"
+
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )
+
+const ERR_NOT_FOUND = "not_found"
 
 type (
 	// Investments is a list of Investment(s).
@@ -19,6 +23,7 @@ type (
 		Group  *Group `json:"group,omitempty" bson:",omitempty"`
 		Fields bson.M `json:"fields"`
 	}
+
 	// InvestmentRepo is responsible for all actions on the database related to the
 	// Investment model
 	InvestmentRepo struct {
@@ -75,10 +80,13 @@ func (r *InvestmentRepo) CreateOne(toCreate Investment) (Investment, error) {
 
 // DeleteOne will delete an investment from the repo by ID. It will return an
 // error if the document wasn't found or there was some other error condition.
-func (r *InvestmentRepo) DeleteOne(id bson.ObjectId) error {
-	err := r.Collection.RemoveId(id)
+func (r *InvestmentRepo) DeleteOne(id string) error {
+	bsonId := bson.ObjectIdHex(id)
+	err := r.Collection.RemoveId(bsonId)
 	if err != nil {
-		return err
+		if err.Error() == mgo.ErrNotFound.Error() {
+			return errors.New(ERR_NOT_FOUND)
+		}
 	}
 	return nil
 }

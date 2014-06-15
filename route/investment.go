@@ -21,13 +21,16 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 	investmentRepo = model.NewInvestmentRepo(db)
 
 	api.Post("/investments", binding.Bind(model.Investment{}), CreateOne)
+	api.Delete("/investments/:id", DeleteOne)
 
 	return api, nil
 }
 
+// CreateOne is the handler for when a new resource is being created with
+// a POST request. It will take an Investment model and return the investment
+// model after it was inserted as JSON.
 func CreateOne(investment model.Investment, params martini.Params,
 	sesh *mgo.Database, r render.Render) {
-	log.Info("in CreateOne")
 	investmentRepo.Collection = sesh.C("investments")
 	createdInvestment, err := investmentRepo.CreateOne(investment)
 	if err != nil {
@@ -37,5 +40,27 @@ func CreateOne(investment model.Investment, params martini.Params,
 
 	r.JSON(ResponseSuccess(createdInvestment, "investment"))
 
+	return
+}
+
+// DeleteOne will take an id from the url params and request that the resource
+// be deleted from the database. Returns a 404 response if the resource was not
+// found, a 500 for other errors and a success response with no data on success.
+func DeleteOne(params martini.Params, sesh *mgo.Database, r render.Render) {
+	investmentRepo.Collection = sesh.C("investments")
+	err := investmentRepo.DeleteOne(params["id"])
+	if err != nil {
+		// If type of error is mg.ErrNotFound, return a 404.
+		if err.Error() == model.ERR_NOT_FOUND {
+			r.JSON(ResponseNotFound())
+			return
+		} else {
+			log.Error(err.Error())
+			r.JSON(ResponseInternalServerError(err))
+			return
+		}
+	}
+
+	r.JSON(ResponseSuccessNoData())
 	return
 }
