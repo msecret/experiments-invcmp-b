@@ -31,15 +31,11 @@ func CreateOne(investment model.Investment, params martini.Params,
 	investmentRepo.Collection = sesh.C("investments")
 	createdInvestment, err := investmentRepo.CreateOne(investment)
 	if err != nil {
-		r.JSON(500, map[string]interface{}{"status": "failure",
-			"error_message": err.Error()})
+		r.JSON(ResponseInternalServerError(err))
 		return
 	}
 
-	r.JSON(200, map[string]interface{}{"status": "success",
-		"data": map[string]interface{}{
-			"investment": createdInvestment},
-	})
+	r.JSON(ResponseSuccess(createdInvestment, "investment"))
 
 	return
 }
