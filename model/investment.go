@@ -29,6 +29,7 @@ type (
 	// operations on an Investment model.
 	InvestmentRepositor interface {
 		CreateOne(toCreate Investment) (Investment, error)
+		DeleteOne(id bson.ObjectId) error
 	}
 )
 
@@ -70,4 +71,14 @@ func (r *InvestmentRepo) CreateOne(toCreate Investment) (Investment, error) {
 	}
 
 	return toCreate, nil
+}
+
+// DeleteOne will delete an investment from the repo by ID. It will return an
+// error if the document wasn't found or there was some other error condition.
+func (r *InvestmentRepo) DeleteOne(id bson.ObjectId) error {
+	err := r.Collection.RemoveId(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
