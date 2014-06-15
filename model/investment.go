@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	log "github.com/cihub/seelog"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -57,6 +58,22 @@ func NewInvestmentRepo(sesh *mgo.Database) InvestmentRepo {
 	return r
 }
 
+// GetOne will search for an investment and return it if found, return a not
+// found error if not found, or return other error if one occurred.
+func (r *InvestmentRepo) GetOne(id string) (Investment, error) {
+	toReturnInvestment := Investment{}
+	bsonId := bson.ObjectIdHex(id)
+	err := r.Collection.FindId(bsonId).One(&toReturnInvestment)
+	if err != nil {
+		if err.Error() == mgo.ErrNotFound.Error() {
+			return toReturnInvestment, errors.New(ERR_NOT_FOUND)
+		} else {
+			return toReturnInvestment, err
+		}
+	}
+	return toReturnInvestment, nil
+}
+
 // CreateOne will attempt to update the base time fields and then insert one
 // Investment into the database by taking a Investment to be created. Returns
 // the created investment.
@@ -86,6 +103,9 @@ func (r *InvestmentRepo) DeleteOne(id string) error {
 	if err != nil {
 		if err.Error() == mgo.ErrNotFound.Error() {
 			return errors.New(ERR_NOT_FOUND)
+		} else {
+			log.Error(err.Error())
+			return err
 		}
 	}
 	return nil
