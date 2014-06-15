@@ -2,7 +2,9 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	log "github.com/cihub/seelog"
+	"reflect"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -60,7 +62,7 @@ func NewInvestmentRepo(sesh *mgo.Database) InvestmentRepo {
 
 // GetOne will search for an investment and return it if found, return a not
 // found error if not found, or return other error if one occurred.
-func (r *InvestmentRepo) GetOne(id string) (Investment, error) {
+func (r *InvestmentRepo) FindOne(id string) (Investment, error) {
 	toReturnInvestment := Investment{}
 	bsonId := bson.ObjectIdHex(id)
 	err := r.Collection.FindId(bsonId).One(&toReturnInvestment)
@@ -79,7 +81,7 @@ func (r *InvestmentRepo) GetOne(id string) (Investment, error) {
 // error, or just the error otherwise.
 // Because symbol is unique, this is not part of a list of investments but just
 // a single investment.
-func (r *InvestmentRepo) GetOneBySymbol(symbol string) (Investment, error) {
+func (r *InvestmentRepo) FindOneBySymbol(symbol string) (Investment, error) {
 	toReturnInvestment := Investment{}
 	err := r.Collection.Find(bson.M{"symbol": symbol}).One(&toReturnInvestment)
 	if err != nil {
@@ -90,6 +92,21 @@ func (r *InvestmentRepo) GetOneBySymbol(symbol string) (Investment, error) {
 		}
 	}
 	return toReturnInvestment, nil
+}
+
+// Get multiple will take a map of params to search on and return a list of
+// investments that fulfill the params.
+func (r *InvestmentRepo) FindMultiple(params map[string]interface{}) (
+	Investments, error) {
+	toReturnInvestments := Investments{}
+	bsonParams := mappingToFieldMatches(params)
+
+	err := r.Collection.Find(bsonParams).All(&toReturnInvestments)
+	if err != nil {
+		return toReturnInvestments, err
+	}
+
+	return toReturnInvestments, nil
 }
 
 // CreateOne will attempt to update the base time fields and then insert one
@@ -127,4 +144,35 @@ func (r *InvestmentRepo) DeleteOne(id string) error {
 		}
 	}
 	return nil
+}
+
+func mappingToFieldMatches(mapping map[string]interface{}) bson.M {
+	/*
+	   //start
+	   {
+	     fields: {
+	       cap: poop
+	     }
+	     group: {
+	       name: poop
+	     }
+	   }
+	   //end
+	   {
+	     fields.cap: poop,
+	     group.name: poop
+	   }
+	*/
+	fields := bson.M{}
+	for key, value := range mapping {
+		fieldPrefix := key
+		if reflect.TypeOf(value).Kind() == reflect.Map {
+			for innerKey, innerValue := range value.(map[string]interface{}) {
+				fieldKey := fmt.Sprintf("%s.%s", fieldPrefix, innerKey)
+				fields[fieldKey] = innerValue
+			}
+		}
+	}
+
+	return fields
 }

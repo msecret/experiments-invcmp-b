@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	log "github.com/cihub/seelog"
 	"github.com/codegangsta/martini-contrib/render"
@@ -25,8 +27,8 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 	investmentRepo = model.NewInvestmentRepo(db)
 
 	api.Get("/investment/:id", GetOne)
-	//api.Get("/investment(?P<symbol>symbol=[a-zA-Z]+)", GetOneBySymbol)
 	api.Get("/investment", GetOneBySymbol)
+	api.Get("/investments", GetMultiple)
 	api.Post("/investments", binding.Bind(model.Investment{}), CreateOne)
 	api.Delete("/investment/:id", DeleteOne)
 
@@ -39,7 +41,7 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 // curl -i -H "Accept: application/json" http://localhost:49182/api/v0/investment/{id}
 func GetOne(params martini.Params, sesh *mgo.Database, r render.Render) {
 	investmentRepo.Collection = sesh.C("investments")
-	investment, err := investmentRepo.GetOne(params["id"])
+	investment, err := investmentRepo.FindOne(params["id"])
 	if err != nil {
 		if err.Error() == model.ERR_NOT_FOUND {
 			r.JSON(ResponseNotFound())
@@ -68,7 +70,7 @@ func GetOneBySymbol(req *http.Request, sesh *mgo.Database, r render.Render) {
 
 	symbol := symbolParam[0]
 	investmentRepo.Collection = sesh.C("investments")
-	investment, err := investmentRepo.GetOneBySymbol(symbol)
+	investment, err := investmentRepo.FindOneBySymbol(symbol)
 	if err != nil {
 		if err.Error() == model.ERR_NOT_FOUND {
 			r.JSON(ResponseNotFound())
@@ -80,6 +82,32 @@ func GetOneBySymbol(req *http.Request, sesh *mgo.Database, r render.Render) {
 	}
 
 	r.JSON(ResponseSuccess(investment, "investment"))
+}
+
+// GetMultiple will get multiple resources. It will look for query params and
+// get by query params if valid ones exist. Otherwise it will get all
+// investments.
+// curl -i -H "Accept: application/json"
+//   http://localhost:49182/api/v0/investments
+//   http://localhost:49182/api/v0/investments?cap=20&price=15
+//   http://localhost:49182/api/v0/investments?group-name=test
+func GetMultiple(req *http.Request, sesh *mgo.Database, r render.Render) {
+	var (
+		err    error
+		params map[string]interface{}
+	)
+	query := req.URL.Query()
+	if len(query) > 0 {
+		params, err = handleParams(query)
+	}
+
+	investmentRepo.Collection = sesh.C("investments")
+	investment, err := investmentRepo.FindMultiple(params)
+	if err != nil {
+		r.JSON(ResponseInternalServerError(err))
+	}
+
+	r.JSON(ResponseSuccess(investment, "investments"))
 }
 
 // CreateOne is the handler for when a new resource is being created with
@@ -120,4 +148,19 @@ func DeleteOne(params martini.Params, sesh *mgo.Database, r render.Render) {
 
 	r.JSON(ResponseSuccessNoData())
 	return
+}
+
+func handleParams(query url.Values) (map[string]interface{}, error) {
+	params, errs := TransformQueryToMapping(query)
+	toReturnErrs := []string{}
+	if len(errs) > 0 {
+		for _, err := range errs {
+			toReturnErrs = append(toReturnErrs, err.Error())
+		}
+		errorString := strings.Join(toReturnErrs, ", ")
+		err := errors.New(
+			fmt.Sprintf("Request has invalid fields: %s", errorString))
+		return params, err
+	}
+	return params, nil
 }
