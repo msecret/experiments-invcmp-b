@@ -14,7 +14,7 @@ type (
 	//   name: string,
 	// }
 	Group struct {
-		Base
+		Base `bson:",inline"`
 		Name string `json:"name" bson"name"`
 	}
 	// GroupRepo is responsible for all actions on the database related to the

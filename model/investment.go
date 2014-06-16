@@ -21,7 +21,7 @@ type (
 	// investment schema:
 	//   /public/schema/investment.json
 	Investment struct {
-		Base
+		Base   `bson:",inline"`
 		Symbol string `json:"symbol" bson:"symbol" binding:"required"`
 		Group  *Group `json:"group,omitempty" bson:",omitempty"`
 		Fields bson.M `json:"fields"`

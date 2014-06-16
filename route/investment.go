@@ -131,7 +131,7 @@ func CreateOne(investment model.Investment, params martini.Params,
 // be deleted from the database. Returns a 404 response if the resource was not
 // found, a 500 for other errors and a success response with no data on success.
 //
-// curl -i -H "Accept: application/json" -X DELETE http://localhost:49182/api/v0/investments/{id}
+// curl -i -H "Accept: application/json" -X DELETE http://localhost:49182/api/v0/investment/{id}
 func DeleteOne(params martini.Params, sesh *mgo.Database, r render.Render) {
 	investmentRepo.Collection = sesh.C("investments")
 	err := investmentRepo.DeleteOne(params["id"])
