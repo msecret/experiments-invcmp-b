@@ -147,22 +147,6 @@ func (r *InvestmentRepo) DeleteOne(id string) error {
 }
 
 func mappingToFieldMatches(mapping map[string]interface{}) bson.M {
-	/*
-	   //start
-	   {
-	     fields: {
-	       cap: poop
-	     }
-	     group: {
-	       name: poop
-	     }
-	   }
-	   //end
-	   {
-	     fields.cap: poop,
-	     group.name: poop
-	   }
-	*/
 	fields := bson.M{}
 	for key, value := range mapping {
 		fieldPrefix := key

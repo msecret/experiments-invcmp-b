@@ -31,8 +31,20 @@ func ResponseInternalServerError(err error) (int, map[string]interface{}) {
 		"error_message": err.Error()}
 }
 
-func ResponseSuccess(resource interface{}, resourceName string) (int, map[string]interface{}) {
-	return http.StatusAccepted, map[string]interface{}{
+func ResponseSuccess(resource interface{}, resourceName string) (int,
+	map[string]interface{}) {
+	return http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"data": map[string]interface{}{
+			resourceName: resource},
+	}
+}
+
+// ResponseCreated takes a resource of any type, a resource name and returns the
+// 201 created status code with a map of data to send back as json.
+func ResponseCreated(resource interface{}, resourceName string) (int,
+	map[string]interface{}) {
+	return http.StatusCreated, map[string]interface{}{
 		"status": "success",
 		"data": map[string]interface{}{
 			resourceName: resource},
@@ -43,7 +55,7 @@ func ResponseSuccess(resource interface{}, resourceName string) (int, map[string
 // to be sent back to the client. The struct will still include a data attribute
 // for consistency.
 func ResponseSuccessNoData() (int, map[string]interface{}) {
-	return http.StatusAccepted, map[string]interface{}{
+	return http.StatusOK, map[string]interface{}{
 		"status": "success",
 		"data":   map[string]interface{}{},
 	}

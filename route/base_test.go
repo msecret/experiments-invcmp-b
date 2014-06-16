@@ -49,7 +49,7 @@ func (suite *RouteBaseTests) TestInternalServerError_WithError() {
 func (suite *RouteBaseTests) TestResponseSuccessWithData() {
 	testData := struct{}{}
 	testResourceName := "resource"
-	expectedCode := http.StatusAccepted
+	expectedCode := http.StatusOK
 	expectedData := map[string]interface{}{
 		"status": "success",
 		"data": map[string]interface{}{
@@ -65,7 +65,7 @@ func (suite *RouteBaseTests) TestResponseSuccessWithData() {
 
 }
 func (suite *RouteBaseTests) TestResponseSuccessWithoutData() {
-	expectedCode := http.StatusAccepted
+	expectedCode := http.StatusOK
 	expectedData := map[string]interface{}{
 		"status": "success",
 		"data":   map[string]interface{}{},
@@ -74,6 +74,24 @@ func (suite *RouteBaseTests) TestResponseSuccessWithoutData() {
 	actualCode, actualData := ResponseSuccessNoData()
 
 	assert.Equal(suite.T(), actualCode, expectedCode, "Status code should be 200")
+	assert.Equal(suite.T(), actualData, expectedData, "Data will have a success "+
+		"status with the data added along with the resource name")
+}
+
+func (suite *RouteBaseTests) TestResponseCreated() {
+	testData := struct{}{}
+	testResourceName := "resource"
+	expectedCode := http.StatusCreated
+	expectedData := map[string]interface{}{
+		"status": "success",
+		"data": map[string]interface{}{
+			testResourceName: testData,
+		},
+	}
+
+	actualCode, actualData := ResponseCreated(testData, testResourceName)
+
+	assert.Equal(suite.T(), actualCode, expectedCode, "Status code should be 201")
 	assert.Equal(suite.T(), actualData, expectedData, "Data will have a success "+
 		"status with the data added along with the resource name")
 }
