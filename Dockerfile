@@ -11,7 +11,7 @@ RUN apt-get update && \
 
 ADD . $APP_PATH
 ## WORKDIR doesn't not expand env vars
-## see https://github.com/dotcloud/docker/issues/2637 
+## see https://github.com/dotcloud/docker/issues/2637
 WORKDIR /srv/go/src/github.com/msecret/invcmp-b
 
 VOLUME ["/srv/go/src/github.com/msecret/invcmp-b", "/srv/go/src/github.com/msecret/invcmp-b/public"]
@@ -24,4 +24,3 @@ RUN go build
 EXPOSE 80
 
 CMD ["gin"]
-
