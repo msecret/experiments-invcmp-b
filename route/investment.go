@@ -29,7 +29,7 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 	api.Get("/investment/:id", GetOne)
 	api.Get("/investment", GetOneBySymbol)
 	api.Get("/investments", GetMultiple)
-	api.Post("/investments", binding.Bind(model.Investment{}), CreateOne)
+	api.Post("/investments", binding.Bind(model.InvestmentRequest{}), CreateOne)
 	api.Delete("/investment/:id", DeleteOne)
 
 	return api, nil
@@ -113,10 +113,10 @@ func GetMultiple(req *http.Request, sesh *mgo.Database, r render.Render) {
 // CreateOne is the handler for when a new resource is being created with
 // a POST request. It will take an Investment model and return the investment
 // model after it was inserted as JSON.
-func CreateOne(investment model.Investment, params martini.Params,
+func CreateOne(investment model.InvestmentRequest, params martini.Params,
 	sesh *mgo.Database, r render.Render) {
 	investmentRepo.Collection = sesh.C("investments")
-	createdInvestment, err := investmentRepo.CreateOne(investment)
+	createdInvestment, err := investmentRepo.CreateOne(investment.Investment)
 	if err != nil {
 		r.JSON(ResponseInternalServerError(err))
 		return

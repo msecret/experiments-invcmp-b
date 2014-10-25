@@ -27,6 +27,12 @@ type (
 		Fields bson.M `json:"fields"`
 	}
 
+  // InvestmentRequest models a request of an investment.
+  //    /public/schema/investment_request.json
+  InvestmentRequest struct {
+    Investment Investment `json:"investment"`
+  }
+
 	// InvestmentRepo is responsible for all actions on the database related to the
 	// Investment model
 	InvestmentRepo struct {
