@@ -102,12 +102,12 @@ func GetMultiple(req *http.Request, sesh *mgo.Database, r render.Render) {
 	}
 
 	investmentRepo.Collection = sesh.C("investments")
-	investment, err := investmentRepo.FindMultiple(params)
+	investments, err := investmentRepo.FindMultiple(params)
 	if err != nil {
 		r.JSON(ResponseInternalServerError(err))
 	}
 
-	r.JSON(ResponseSuccess(investment, "investments"))
+	r.JSON(ResponseSuccess(investments, "investments"))
 }
 
 // CreateOne is the handler for when a new resource is being created with
