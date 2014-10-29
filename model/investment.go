@@ -136,6 +136,24 @@ func (r *InvestmentRepo) CreateOne(toCreate Investment) (Investment, error) {
 	return toCreate, nil
 }
 
+// UpdateOne will take a bson id as a string and an Investment model that will
+// complete replace the model in the db. It will do a mongo update by passing
+// in the id as the query and the investment model as the data.
+func (r *InvestmentRepo) UpdateOne(id string, toUpdate Investment) (Investment,
+    error) {
+	bsonId := bson.ObjectIdHex(id)
+	if toUpdate.Fields == nil {
+		toUpdate.Fields = make(map[string]interface{})
+	}
+
+  err := r.Collection.UpdateId(bsonId, toUpdate);
+	if err != nil {
+		return Investment{}, err
+	}
+
+	return toUpdate, nil
+}
+
 // DeleteOne will delete an investment from the repo by ID. It will return an
 // error if the document wasn't found or there was some other error condition.
 func (r *InvestmentRepo) DeleteOne(id string) error {

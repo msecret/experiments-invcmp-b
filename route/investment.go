@@ -30,6 +30,7 @@ func InitInvestmentRoutes(api martini.Router, db *mgo.Database) (
 	api.Get("/investment", GetOneBySymbol)
 	api.Get("/investments", GetMultiple)
 	api.Post("/investments", binding.Bind(model.InvestmentRequest{}), CreateOne)
+	api.Put("/investment/:id", binding.Bind(model.Investment{}), UpdateOne)
 	api.Delete("/investment/:id", DeleteOne)
 
 	return api, nil
@@ -125,6 +126,29 @@ func CreateOne(investment model.InvestmentRequest, params martini.Params,
 	r.JSON(ResponseSuccess(createdInvestment, "investment"))
 
 	return
+}
+
+// UpdateOne will take an id from the url params and a json object from the PUT
+// data and will update the resource in the database. If the resource to update
+// is not found, it will return a Not Found error, otherwise an internal error.
+//
+// curl -i -H "Accept: application/json" -X PUT -d '{"symbol": "YHOO"}' http://localhost:49182/api/v0/investment/{id}
+func UpdateOne(toUpdateInvestment model.Investment, params martini.Params,
+    sesh *mgo.Database, r render.Render) {
+	investmentRepo.Collection = sesh.C("investments")
+  updatedInvestment, err := investmentRepo.UpdateOne(params["id"],
+    toUpdateInvestment)
+
+  if err != nil {
+		if err.Error() == model.ERR_NOT_FOUND {
+			r.JSON(ResponseNotFound())
+		} else {
+			log.Error(err.Error())
+			r.JSON(ResponseInternalServerError(err))
+		}
+  }
+
+  r.JSON(ResponseSuccess(updatedInvestment, "investment"))
 }
 
 // DeleteOne will take an id from the url params and request that the resource
